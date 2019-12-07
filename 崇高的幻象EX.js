@@ -80,7 +80,7 @@ function generate_postLock(pid, score) { // 回复的锁定类操作。
     var opt = {
         Lock: '1024', Hide: '2', Delete: '1026', Clear: '0', Block: '16384'
     };
-    var oct = (opt[score]=='0')?67126786:0;
+    var oct = (opt[score]=='0')?67126786:0; // 副版不能解除屏蔽，故将此数值减去16384才可以使用
 
     template.href = "javascript:__NUKE.doRequest({u:__API.setPost([__CURRENT_TID,"+pid+"],0,0,"+opt[score]+","+oct+",'','',0,__CURRENT_FID),b: undefined, })";
     template.title = "锁定类操作";
@@ -93,7 +93,7 @@ function generate_moveForum(pid, score) { // 版面之间的移动。会发送PM
     template/*.firstElementChild.firstElementChild*/.innerHTML = score;
 
     var opt = {
-        主版面: '538', 互助招募版面: '582'
+        互助招募版面: '582' // 范例。当按钮内容是“互助招募版面”时会将主题移动到FID为582的版面中，并发送PM“请发到互助招募版面”。
     };
     template.href = "javascript:__NUKE.doRequest({ u:__API.topicMove2(__CURRENT_TID,  "+opt[score]+",  0,  '',  2048,  '', '' ), b:this })";
     //template.href = "javascript:__NUKE.doRequest({ u:__API.topicMove2(__CURRENT_TID,  "+opt[score]+",  1,  '请发到"+score+"',  2048,  '', '' ), b:this })";
@@ -107,10 +107,9 @@ function generate_moveStack(pid, score) { // 移动到同版面内的合集内�
     template/*.firstElementChild.firstElementChild*/.innerHTML = score;
 
     var opt = {
-        风纪: '13837564', 意见: '15813886', ROLL: '15861840', 藏宝阁: '17625518', 代号SSR: '16440503'
+        藏宝阁版面: '17625518' // 范例。当按钮内容是“藏宝阁版面”时会将主题移动到STID为17625518的合集中，并发送PM“请发到藏宝阁版面”。
     };
-    template.href = "javascript:__NUKE.doRequest({ u:__API.topicMove2(__CURRENT_TID,  __CURRENT_FID,  0,  '',  2048,  '', "+opt[score]+" ), b:this })";
-    //template.href = "javascript:__NUKE.doRequest({ u:__API.topicMove2(__CURRENT_TID,  __CURRENT_FID,  1,  '请发到"+score+"',  2048,  '', "+opt[score]+" ), b:this })";
+    template.href = "javascript:__NUKE.doRequest({ u:__API.topicMove2(__CURRENT_TID,  __CURRENT_FID,  1,  '请发到"+score+"',  2048,  '', "+opt[score]+" ), b:this })";
     template.title = "移动";
     template.style.marginLeft=buttons_gap+"em";
     return template;
@@ -123,7 +122,7 @@ function generate_moveDel(pid, score) { // 删除主题。不会发送PM。
     var opt = {
         删除: '538'
     };
-    template.href = "javascript:__NUKE.doRequest({ u:__API.topicMove2(__CURRENT_TID,  '',  '',  'default(违规/无意义/不合适内容/多开)',  1,  '', '' ), b:this })";
+    template.href = "javascript:__NUKE.doRequest({ u:__API.topicMove2(__CURRENT_TID,  '',  '',  'default(崇高的幻象)',  1,  '', '' ), b:this })";
     template.title = "删除主题";
     template.style.marginLeft=buttons_gap+"em";
     return template;
@@ -136,8 +135,7 @@ function generate_stackOut(pid, score) { // 移出合集。
     var opt = {
         移出合集: '1'
     };
-    template.href = "javascript:__NUKE.doRequest({ u:__API.topicMove2(__CURRENT_TID,  '',  0,  '',  2,  '', '' ), b:this })";
-    //template.href = "javascript:__NUKE.doRequest({ u:__API.topicMove2(__CURRENT_TID,  '',  1,  '发错版面',  2,  '', '' ), b:this })";
+    template.href = "javascript:__NUKE.doRequest({ u:__API.topicMove2(__CURRENT_TID,  '',  1,  '发错版面',  2,  '', '' ), b:this })";
     template.title = "移出合集";
     template.style.marginLeft=buttons_gap+"em";
     return template;
@@ -164,7 +162,7 @@ function generate_Scan(pid, score){ // 调查当前主题内的操作记录。
         Scan: ''
     };
     template.href = "javascript:adminui.viewLog('','','',__CURRENT_TID)";
-    template.title = "调查当前主题内的操作记录";
+    template.title = "调查当前主题内的操作记录\n公开任何操作记录的后果自负";
     template.style.marginLeft=buttons_gap+"em";
     return template;
 }
@@ -177,7 +175,7 @@ function generate_analysisStat(pid, score){ // 调查当前主题内的访问统
         AnaStat: ''
     };
     template.href = "javascript:adminui.forumStat(true,'',__CURRENT_TID,'',7);";
-    template.title = "调查当前主题内的访问统计\n需要同时拥有正式版主权限和Moderator权限";
+    template.title = "调查当前主题内的访问统计\n需要同时拥有正式版主权限和Moderator权限\n公开运营数据之前请务必询问工作人员";
     template.style.marginLeft=buttons_gap+"em";
     return template;
 }
@@ -217,7 +215,7 @@ forEach(post_infos, function(o) {
         if(__GP.admincheck) {
             buttons.appendChild(generate_addScore(pid,'15'));
             buttons.appendChild(generate_addScore(pid,'30'));
-            buttons.appendChild(generate_themeLock(pid, 'Clear'));
+            buttons.appendChild(generate_postLock(pid, 'Clear'));
         }
         else if(__GP.greater) {
             buttons.appendChild(generate_Scan(pid, 'Scan'));
