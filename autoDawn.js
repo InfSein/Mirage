@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         银色黎明自动化
-// @version      1.0
-// @description  自动回复
-// @author       You
+// @name         AutoDawn
+// @version      1.1
+// @description  一键完成常用回复及其他主题操作。详见224.
+// @author       InfSein
 // @match        http*://bbs.nga.cn/read.php*
 // @match        http*://bbs.ngacn.cc/read.php*
 // @match        http*://nga.178.com/read.php*
@@ -34,6 +34,33 @@ function getButtons(post_info) {
 
 var post_infos = document.getElementsByClassName('postInfo');
 
+function generate_themeColor(pid, score) { // 改变主题颜色。
+    var template = getButtons(post_infos[0]).getElementsByClassName('small_colored_text_btn block_txt_c0 stxt')[1].cloneNode(true);
+    template/*.firstElementChild.firstElementChild*/.innerHTML = score;
+
+    var opt = {
+        Done: ''
+    };
+    template.href = "javascript:__NUKE.doRequest({ u:{u:__API._base, a:{__lib:'topic_color',__act:'set',tid:__CURRENT_TID,font:',U',opt:48,raw:3}}, b:this });"
+    template.title = "改变主题颜色";
+    template.style.marginLeft=buttons_gap+"em";
+    return template;
+}
+
+function generate_themeLock(pid, score) { // 主题的锁定类操作。
+    var template = getButtons(post_infos[0]).getElementsByClassName('small_colored_text_btn block_txt_c0 stxt')[1].cloneNode(true);
+    template/*.firstElementChild.firstElementChild*/.innerHTML = score;
+
+    var opt = {
+        Lock: '1024', Hide: '2', Delete: '1026', Clear: '0', Block: '16384'
+    };
+    var oct = (opt[score]=='0')?67126786:0; // RAU:512 | 屏蔽:16384 | BAU:67108864
+
+    template.href = "javascript:__NUKE.doRequest({u:__API.setPost(__CURRENT_TID,0,0,"+opt[score]+","+oct+",'','',0,__CURRENT_FID),b: undefined, })";
+    template.title = "锁定类操作";
+    template.style.marginLeft=buttons_gap+"em";
+    return template;
+}
 function generate_ReplyText(pid, score) {
     var template = getButtons(post_infos[0]).children[2].cloneNode(true);
     template/*.firstElementChild.firstElementChild*/.innerHTML = score;
@@ -66,8 +93,11 @@ forEach(post_infos, function(o) { // 主框架
     console.log(pid);
     if(__CURRENT_FID==10 && pid==0)
     {
+        buttons.appendChild(generate_themeLock(pid, 'Clear'));
+        buttons.appendChild(generate_themeColor(pid, 'Done'));
+        post_infos[0].insertAdjacentHTML('beforeend', '<br>'); // 换行
         buttons.appendChild(generate_ReplyText(pid, '已处理'));
         buttons.appendChild(generate_ReplyText(pid, '已有处理'));
-        buttons.appendChild(generate_ReplyMixed(pid, 'Q1')); // 实验性
+        //buttons.appendChild(generate_ReplyMixed(pid, 'Q1')); // 实验性
     }
     });
